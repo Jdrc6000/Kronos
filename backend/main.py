@@ -9,11 +9,11 @@ from pydantic import BaseModel
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from password_manager import PasswordManager
 
-VAULT_FILE   = Path(os.getenv("KRONOS_VAULT_FILE", "vault.json"))
-FRONTEND_DIR = Path(os.getenv("KRONOS_FRONTEND_DIR", "../frontend"))
+VAULT_FILE = Path(os.getenv("KRONOS_VAULT_FILE", "vault.json"))
+FRONTEND_DIR = Path(os.getenv("KRONOS_FRONTEND_DIR", Path(__file__).resolve().parent.parent / "frontend"))
 
 app = FastAPI(title="Kronos", docs_url="/docs")
-pm  = PasswordManager()
+pm = PasswordManager()
 
 @app.get("/", include_in_schema=False)
 def serve_frontend() -> FileResponse:
@@ -61,3 +61,5 @@ def save(payload: SavePayload) -> Response:
         raise HTTPException(status_code=500, detail="Failed to write vault.") from exc
     
     return Response(status_code=204)
+
+app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")

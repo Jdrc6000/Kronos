@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kronos — Settings</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500&family=IBM+Plex+Sans:wght@400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #0e0f11;
+            --surface: #16181c;
+            --raised: #1e2128;
+            --border: #2a2d35;
+            --border-hi: #3d4250;
+            --text: #c9cdd6;
+            --text-dim: #5a6070;
+            --text-faint: #2e3240;
+            --accent: #c9a84c;
+            --ff-mono: 'IBM Plex Mono', monospace;
+            --ff-sans: 'IBM Plex Sans', sans-serif;
+        }
+
+        html,
+        body {
+            height: 100%;
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--ff-sans);
+            font-size: 14px;
+        }
+
+        .page {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 3rem 2rem 5rem;
+        }
+
+        .page-header {
+            margin-bottom: 3rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+        }
+
+        .page-header-left {}
+
+        .breadcrumb {
+            font-family: var(--ff-mono);
+            font-size: 0.65rem;
+            letter-spacing: 0.15em;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            margin-bottom: 0.4rem;
+        }
+
+        .breadcrumb a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        .page-title {
+            font-size: 1.3rem;
+            font-weight: 500;
+            color: var(--text);
+            letter-spacing: -0.01em;
+        }
+
+        .page-subtitle {
+            font-size: 0.78rem;
+            color: var(--text-dim);
+            margin-top: 0.3rem;
+            font-family: var(--ff-mono);
+        }
+
+        .active-badge {
+            font-family: var(--ff-mono);
+            font-size: 0.6rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            padding: 0.25rem 0.6rem;
+            opacity: 0.7;
+        }
+
+        .section-label {
+            font-family: var(--ff-mono);
+            font-size: 0.6rem;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            margin-bottom: 1rem;
+        }
+
+        .themes-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+            margin-bottom: 3rem;
+        }
+
+        .theme-card {
+            border: 1px solid var(--border);
+            background: var(--surface);
+            cursor: pointer;
+            transition: border-color 0.15s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .theme-card:hover {
+            border-color: var(--border-hi);
+        }
+
+        .theme-card.selected {
+            border-color: var(--accent);
+        }
+
+        .theme-card.selected::after {
+            content: '✓';
+            position: absolute;
+            top: 8px;
+            right: 10px;
+            font-family: var(--ff-mono);
+            font-size: 0.65rem;
+            color: var(--accent);
+        }
+
+        .theme-preview {
+            height: 130px;
+            overflow: hidden;
+            position: relative;
+            pointer-events: none;
+        }
+
+        .theme-preview iframe {
+            width: 200%;
+            height: 200%;
+            transform: scale(0.5);
+            transform-origin: top left;
+            border: none;
+            pointer-events: none;
+        }
+
+        /* fallback colored swatches for non-iframe preview */
+        .theme-swatch {
+            height: 130px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .theme-info {
+            padding: 10px 12px 12px;
+            border-top: 1px solid var(--border);
+        }
+
+        .theme-name {
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: var(--text);
+            margin-bottom: 3px;
+        }
+
+        .theme-desc {
+            font-size: 0.68rem;
+            color: var(--text-dim);
+            font-family: var(--ff-mono);
+            line-height: 1.5;
+        }
+
+        .apply-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transform: translateY(100%);
+            transition: transform 0.2s ease;
+            z-index: 50;
+        }
+
+        .apply-bar.visible {
+            transform: translateY(0);
+        }
+
+        .apply-bar-text {
+            font-family: var(--ff-mono);
+            font-size: 0.68rem;
+            color: var(--text-dim);
+        }
+
+        .apply-bar-text strong {
+            color: var(--text);
+        }
+
+        .apply-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 0.5rem 1.2rem;
+            font-family: var(--ff-mono);
+            font-size: 0.68rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-dim);
+            transition: all 0.15s;
+        }
+
+        .btn:hover {
+            border-color: var(--border-hi);
+            color: var(--text);
+        }
+
+        .btn.primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #1a1400;
+            font-weight: 500;
+        }
+
+        .btn.primary:hover {
+            background: #e0bd60;
+            border-color: #e0bd60;
+        }
+
+        /* Inline previews per theme */
+        /* broadsheet */
+        .swatch-broadsheet {
+            background: #f0ead8;
+            padding: 10px;
+        }
+
+        .sw-mast {
+            text-align: center;
+            border-bottom: 3px solid #0f0e0b;
+            border-top: 3px solid #0f0e0b;
+            padding: 4px 0;
+            margin-bottom: 6px;
+        }
+
+        .sw-mast-name {
+            font-family: Georgia, serif;
+            font-size: 18px;
+            font-weight: 900;
+            color: #0f0e0b;
+        }
+
+        .sw-cols {
+            display: grid;
+            grid-template-columns: 1fr 1px 1fr;
+            gap: 0;
+            height: 70px;
+        }
+
+        .sw-col {
+            padding: 6px 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .sw-rule {
+            background: #0f0e0b;
+        }
+
+        .sw-headline {
+            font-family: Georgia, serif;
+            font-size: 9px;
+            font-weight: 900;
+            color: #0f0e0b;
+            line-height: 1.2;
+        }
+
+        .sw-body {
+            font-family: Georgia, serif;
+            font-size: 6px;
+            color: #3a3830;
+            line-height: 1.6;
+        }
+
+        .sw-input {
+            border: 1px solid #0f0e0b;
+            padding: 3px 5px;
+            font-family: monospace;
+            font-size: 7px;
+            color: #0f0e0b;
+            background: #e6dfc9;
+            width: 100%;
+        }
+
+        .sw-btn {
+            background: #0f0e0b;
+            color: #f0ead8;
+            font-family: monospace;
+            font-size: 6px;
+            letter-spacing: 0.2em;
+            padding: 3px;
+            text-align: center;
+            margin-top: 2px;
+        }
+
+        /* terminal */
+        .swatch-terminal {
+            background: #0c140c;
+            padding: 10px;
+            font-family: monospace;
+        }
+
+        .sw-term-line {
+            font-size: 7px;
+            color: #33cc33;
+            line-height: 1.8;
+        }
+
+        .sw-term-dim {
+            color: #1a6b1a;
+        }
+
+        .sw-term-box {
+            border: 1px solid #1a6b1a;
+            padding: 5px;
+            margin: 4px 0;
+        }
+
+        .sw-term-cursor {
+            display: inline-block;
+            width: 5px;
+            height: 9px;
+            background: #33cc33;
+            vertical-align: middle;
+            animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1
+            }
+
+            50% {
+                opacity: 0
+            }
+        }
+
+        /* obsidian */
+        .swatch-obsidian {
+            background: #080808;
+            padding: 12px;
+            font-family: monospace;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .sw-obs-word {
+            font-size: 7px;
+            letter-spacing: 0.4em;
+            color: #333;
+            border-bottom: 0.5px solid #1a1a1a;
+            padding-bottom: 6px;
+        }
+
+        .sw-obs-field {
+            border: 0.5px solid #1e1e1e;
+            padding: 5px 7px;
+            font-size: 7px;
+            color: #444;
+        }
+
+        .sw-obs-row {
+            display: flex;
+            gap: 5px;
+        }
+
+        .sw-obs-item {
+            flex: 1;
+            border: 0.5px solid #1a1a1a;
+            padding: 5px 7px;
+        }
+
+        .sw-obs-item-name {
+            font-size: 7px;
+            color: #555;
+        }
+
+        .sw-obs-item-user {
+            font-size: 6px;
+            color: #2e2e2e;
+            margin-top: 1px;
+        }
+
+        /* clay */
+        .swatch-clay {
+            background: #eae6e0;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .sw-clay-logo {
+            background: #ccc8c0;
+            border-radius: 10px;
+            padding: 7px 10px;
+        }
+
+        .sw-clay-logo-name {
+            font-family: system-ui;
+            font-size: 11px;
+            font-weight: 500;
+            color: #4a4742;
+        }
+
+        .sw-clay-logo-sub {
+            font-family: system-ui;
+            font-size: 7px;
+            color: #9a9590;
+        }
+
+        .sw-clay-row {
+            display: flex;
+            gap: 5px;
+        }
+
+        .sw-clay-card {
+            background: #dedad3;
+            border-radius: 8px;
+            padding: 6px 8px;
+            flex: 1;
+        }
+
+        .sw-clay-label {
+            font-size: 6px;
+            color: #9a9590;
+            font-family: system-ui;
+        }
+
+        .sw-clay-val {
+            font-size: 8px;
+            color: #4a4742;
+            font-family: system-ui;
+            font-weight: 500;
+        }
+
+        .sw-clay-btn {
+            background: #4a4742;
+            border-radius: 7px;
+            padding: 5px;
+            text-align: center;
+            font-size: 7px;
+            color: #eae6e0;
+            font-family: system-ui;
+        }
+
+        /* constructivist */
+        .swatch-constructivist {
+            background: #1a1f3a;
+            padding: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .sw-con-stripe {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            background: #b52a2a;
+            transform: rotate(-30deg);
+            top: -50px;
+            right: -40px;
+            opacity: 0.85;
+        }
+
+        .sw-con-stripe2 {
+            position: absolute;
+            width: 60px;
+            height: 180px;
+            background: #e8c84a;
+            transform: rotate(-30deg);
+            top: 30px;
+            right: -60px;
+            opacity: 0.6;
+        }
+
+        .sw-con-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .sw-con-title {
+            font-family: Impact, sans-serif;
+            font-size: 22px;
+            font-weight: 900;
+            color: #f0ede0;
+            line-height: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .sw-con-sub {
+            font-family: monospace;
+            font-size: 6px;
+            color: #666;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            margin: 4px 0 8px;
+        }
+
+        .sw-con-item {
+            display: flex;
+            align-items: stretch;
+            border-bottom: 1px solid #2e3560;
+        }
+
+        .sw-con-bar {
+            width: 3px;
+            flex-shrink: 0;
+        }
+
+        .sw-con-body {
+            padding: 3px 6px;
+        }
+
+        .sw-con-name {
+            font-family: Impact, sans-serif;
+            font-size: 8px;
+            color: #f0ede0;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .sw-con-user {
+            font-family: monospace;
+            font-size: 6px;
+            color: #555;
+        }
+
+        /* risograph */
+        .swatch-risograph {
+            background: #f5ede0;
+            padding: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sw-riso-c1 {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: #e05a1e;
+            border-radius: 50%;
+            top: -40px;
+            right: -30px;
+            opacity: 0.18;
+        }
+
+        .sw-riso-c2 {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            background: #1e7fa8;
+            border-radius: 50%;
+            top: -20px;
+            right: -10px;
+            opacity: 0.18;
+        }
+
+        .sw-riso-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .sw-riso-title {
+            font-family: Georgia, serif;
+            font-size: 20px;
+            font-weight: 900;
+            color: #1a1a1a;
+            line-height: 1;
+            letter-spacing: -0.02em;
+        }
+
+        .sw-riso-tint {
+            color: #e05a1e;
+        }
+
+        .sw-riso-sub {
+            font-family: monospace;
+            font-size: 6px;
+            color: #999;
+            letter-spacing: 0.2em;
+            margin-bottom: 7px;
+        }
+
+        .sw-riso-input {
+            border: 1.5px solid #1a1a1a;
+            padding: 4px 6px;
+            font-family: monospace;
+            font-size: 7px;
+            color: #1a1a1a;
+            background: transparent;
+            width: 100%;
+            margin-bottom: 4px;
+        }
+
+        .sw-riso-btn {
+            background: #1a1a1a;
+            color: #f5ede0;
+            font-family: monospace;
+            font-size: 6px;
+            letter-spacing: 0.2em;
+            padding: 4px;
+            text-align: center;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <div class="page-header">
+            <div class="page-header-left">
+                <div class="breadcrumb"><a href="index.html">Kronos</a> / Settings</div>
+                <div class="page-title">Appearance</div>
+                <div class="page-subtitle">Choose how Kronos looks. Theme is saved in your browser.</div>
+            </div>
+            <div class="active-badge" id="active-badge">Active: broadsheet</div>
+        </div>
+
+        <div class="section-label">Select theme</div>
+
+        <div class="themes-grid" id="themes-grid">
+
+            <!-- Broadsheet -->
+            <div class="theme-card" data-theme="broadsheet" onclick="selectTheme('broadsheet')">
+                <div class="theme-swatch swatch-broadsheet">
+                    <div class="sw-mast">
+                        <div class="sw-mast-name">Kronos</div>
+                    </div>
+                    <div class="sw-cols">
+                        <div class="sw-col">
+                            <div class="sw-headline">All your credentials,<br>under lock & key.</div>
+                            <div class="sw-body">Encrypted with Argon2id and AES-256-GCM. Your master password never
+                                leaves this machine.</div>
+                        </div>
+                        <div class="sw-rule"></div>
+                        <div class="sw-col">
+                            <div class="sw-body"
+                                style="font-size:5px;letter-spacing:0.15em;text-transform:uppercase;color:#555;margin-bottom:2px;">
+                                Master Passphrase</div>
+                            <div class="sw-input">••••••••••••</div>
+                            <div class="sw-btn">UNLOCK VAULT</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="theme-info">
+                    <div class="theme-name">Brutalist Broadsheet</div>
+                    <div class="theme-desc">Aged paper · Heavy serif · Print rules</div>
+                </div>
+            </div>
+
+            <!-- Terminal -->
+            <div class="theme-card" data-theme="terminal" onclick="selectTheme('terminal')">
+                <div class="theme-swatch swatch-terminal">
+                    <div class="sw-term-line sw-term-dim">kronos v2.1.0 — zero-knowledge vault</div>
+                    <div class="sw-term-line sw-term-dim">──────────────────────────────</div>
+                    <div class="sw-term-box">
+                        <div class="sw-term-line sw-term-dim">[ VAULT LOCKED ]</div>
+                        <div class="sw-term-line" style="margin-top:4px;"><span class="sw-term-dim">passphrase:
+                            </span>••••••••<span class="sw-term-cursor"></span></div>
+                    </div>
+                    <div class="sw-term-line"><span class="sw-term-dim">01 </span>github.com<span class="sw-term-dim">
+                            ··· </span>user@—</div>
+                    <div class="sw-term-line"><span class="sw-term-dim">02 </span>gmail.com<span class="sw-term-dim">
+                            ··· </span>user@—</div>
+                    <div class="sw-term-line"><span class="sw-term-dim">03 </span>aws<span class="sw-term-dim"> ···
+                        </span>root</div>
+                </div>
+                <div class="theme-info">
+                    <div class="theme-name">Terminal / Phosphor</div>
+                    <div class="theme-desc">Green-on-black · Monospace · CLI feel</div>
+                </div>
+            </div>
+
+            <!-- Obsidian -->
+            <div class="theme-card" data-theme="obsidian" onclick="selectTheme('obsidian')">
+                <div class="theme-swatch swatch-obsidian">
+                    <div class="sw-obs-word">K · R · O · N · O · S <span style="color:#2a2a2a;">— vault</span></div>
+                    <div>
+                        <div
+                            style="font-size:6px;letter-spacing:0.2em;color:#2e2e2e;font-family:monospace;margin-bottom:3px;">
+                            PASSPHRASE</div>
+                        <div class="sw-obs-field">••••••••••••••••</div>
+                    </div>
+                    <div class="sw-obs-row">
+                        <div class="sw-obs-item">
+                            <div class="sw-obs-item-name">github.com</div>
+                            <div class="sw-obs-item-user">user@email.com</div>
+                        </div>
+                        <div class="sw-obs-item">
+                            <div class="sw-obs-item-name">gmail.com</div>
+                            <div class="sw-obs-item-user">user@—</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="theme-info">
+                    <div class="theme-name">Obsidian</div>
+                    <div class="theme-desc">Near-black · Hairline borders · No color</div>
+                </div>
+            </div>
+
+            <!-- Clay -->
+            <div class="theme-card" data-theme="clay" onclick="selectTheme('clay')">
+                <div class="theme-swatch swatch-clay">
+                    <div class="sw-clay-logo">
+                        <div class="sw-clay-logo-name">Kronos</div>
+                        <div class="sw-clay-logo-sub">vault</div>
+                    </div>
+                    <div class="sw-clay-row">
+                        <div class="sw-clay-card">
+                            <div class="sw-clay-label">github.com</div>
+                            <div class="sw-clay-val">user@email.com</div>
+                        </div>
+                        <div class="sw-clay-card" style="background:#d0cbc3;">
+                            <div class="sw-clay-label">gmail.com</div>
+                            <div class="sw-clay-val">user@—</div>
+                        </div>
+                    </div>
+                    <div class="sw-clay-btn">Unlock</div>
+                </div>
+                <div class="theme-info">
+                    <div class="theme-name">Soft Clay</div>
+                    <div class="theme-desc">Warm greige · Rounded · Tactile depth</div>
+                </div>
+            </div>
+
+            <!-- Constructivist -->
+            <div class="theme-card" data-theme="constructivist" onclick="selectTheme('constructivist')">
+                <div class="theme-swatch swatch-constructivist">
+                    <div class="sw-con-stripe"></div>
+                    <div class="sw-con-stripe2"></div>
+                    <div class="sw-con-content">
+                        <div class="sw-con-title">KRO<br>NOS</div>
+                        <div class="sw-con-sub">Secure vault</div>
+                        <div class="sw-con-item">
+                            <div class="sw-con-bar" style="background:#b52a2a;"></div>
+                            <div class="sw-con-body">
+                                <div class="sw-con-name">github.com</div>
+                                <div class="sw-con-user">user@—</div>
+                            </div>
+                        </div>
+                        <div class="sw-con-item">
+                            <div class="sw-con-bar" style="background:#e8c84a;"></div>
+                            <div class="sw-con-body">
+                                <div class="sw-con-name">gmail.com</div>
+                                <div class="sw-con-user">user@—</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="theme-info">
+                    <div class="theme-name">Constructivist</div>
+                    <div class="theme-desc">Navy + crimson · Diagonal · Impact type</div>
+                </div>
+            </div>
+
+            <!-- Risograph -->
+            <div class="theme-card" data-theme="risograph" onclick="selectTheme('risograph')">
+                <div class="theme-swatch swatch-risograph">
+                    <div class="sw-riso-c1"></div>
+                    <div class="sw-riso-c2"></div>
+                    <div class="sw-riso-content">
+                        <div class="sw-riso-title">Kro<span class="sw-riso-tint">nos</span></div>
+                        <div class="sw-riso-sub">password vault — 2026</div>
+                        <div class="sw-riso-input" style="font-family:monospace;">••••••••••••</div>
+                        <div class="sw-riso-btn">unlock</div>
+                    </div>
+                </div>
+                <div class="theme-info">
+                    <div class="theme-name">Risograph / Zine</div>
+                    <div class="theme-desc">Cream · Two-ink · Indie print feel</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Apply bar -->
+    <div class="apply-bar" id="apply-bar">
+        <div class="apply-bar-text">Switch to <strong id="pending-name">—</strong>?</div>
+        <div class="apply-actions">
+            <button class="btn" onclick="cancelSelect()">Cancel</button>
+            <button class="btn primary" onclick="applyTheme()">Apply & Open Vault</button>
+        </div>
+    </div>
+
+    <script>
+        const THEMES = {
+            broadsheet: 'Brutalist Broadsheet',
+            terminal: 'Terminal / Phosphor',
+            obsidian: 'Obsidian',
+            clay: 'Soft Clay',
+            constructivist: 'Constructivist',
+            risograph: 'Risograph / Zine',
+        };
+
+        let current = localStorage.getItem('kronos-theme') || 'broadsheet';
+        let pending = null;
+
+        function init() {
+            markSelected(current);
+            document.getElementById('active-badge').textContent = 'Active: ' + THEMES[current];
+        }
+
+        function markSelected(theme) {
+            document.querySelectorAll('.theme-card').forEach(c => {
+                c.classList.toggle('selected', c.dataset.theme === theme);
+            });
+        }
+
+        function selectTheme(theme) {
+            if (theme === current) { cancelSelect(); return; }
+            pending = theme;
+            markSelected(theme);
+            document.getElementById('pending-name').textContent = THEMES[theme];
+            document.getElementById('apply-bar').classList.add('visible');
+        }
+
+        function cancelSelect() {
+            pending = null;
+            markSelected(current);
+            document.getElementById('apply-bar').classList.remove('visible');
+        }
+
+        function applyTheme() {
+            if (!pending) return;
+            localStorage.setItem('kronos-theme', pending);
+            window.location.href = 'themes/' + pending + '.html';
+        }
+
+        init();
+    </script>
+</body>
+
+</html>

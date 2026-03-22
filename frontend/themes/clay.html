@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Kronos</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@300;400&display=swap"
+        rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        :root {
+            --bg: #eae6e0;
+            --s1: #e1ddd6;
+            --s2: #d8d3cc;
+            --s3: #ccc8c0;
+            --s4: #c0bbb2;
+            --s5: #b0ab9f;
+            --text: #4a4742;
+            --text-dim: #9a9590;
+            --text-faint: #b8b3ac;
+            --ff: 'DM Sans', sans-serif;
+            --ffm: 'DM Mono', monospace;
+            --r: 14px;
+            --rs: 10px;
+        }
+
+        html,
+        body {
+            height: 100%;
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--ff);
+            font-size: 14px
+        }
+
+        @keyframes up {
+            from {
+                opacity: 0;
+                transform: translateY(12px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+
+        #lock-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem;
+            animation: up .6s cubic-bezier(.22, 1, .36, 1) both
+        }
+
+        .lock-logo {
+            text-align: center;
+            margin-bottom: 2.5rem
+        }
+
+        .lock-logo-name {
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--text);
+            letter-spacing: -.03em
+        }
+
+        .lock-logo-sub {
+            font-size: .72rem;
+            color: var(--text-dim);
+            font-family: var(--ffm);
+            margin-top: .2rem;
+            letter-spacing: .04em
+        }
+
+        .lock-logo-dots {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            margin-top: .8rem
+        }
+
+        .lock-logo-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%
+        }
+
+        .lock-card {
+            background: var(--s1);
+            border-radius: 20px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 340px
+        }
+
+        .field-label {
+            display: block;
+            font-size: .68rem;
+            font-weight: 500;
+            color: var(--text-dim);
+            margin-bottom: .4rem;
+            letter-spacing: .02em
+        }
+
+        .field-group {
+            margin-bottom: 1.2rem
+        }
+
+        .input-wrap {
+            position: relative
+        }
+
+        input[type="password"],
+        input[type="text"],
+        input[type="search"] {
+            width: 100%;
+            background: var(--s2);
+            border: none;
+            border-radius: var(--rs);
+            color: var(--text);
+            font-family: var(--ff);
+            font-size: .88rem;
+            padding: .7rem 2.5rem .7rem .9rem;
+            outline: none;
+            transition: background .2s;
+        }
+
+        input:focus {
+            background: var(--s3)
+        }
+
+        input::placeholder {
+            color: var(--text-faint)
+        }
+
+        .eye-btn {
+            position: absolute;
+            right: .7rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            cursor: pointer;
+            font-size: .8rem;
+            transition: color .15s
+        }
+
+        .eye-btn:hover {
+            color: var(--text)
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: .8rem;
+            background: var(--text);
+            border: none;
+            border-radius: var(--rs);
+            color: var(--bg);
+            font-family: var(--ff);
+            font-size: .82rem;
+            font-weight: 600;
+            letter-spacing: .02em;
+            cursor: pointer;
+            transition: all .2s
+        }
+
+        .btn-primary:hover {
+            background: #3a3835
+        }
+
+        .btn-primary:disabled {
+            background: var(--s4);
+            color: var(--text-faint);
+            cursor: not-allowed
+        }
+
+        .status-msg {
+            margin-top: .7rem;
+            font-size: .7rem;
+            text-align: center;
+            min-height: 1rem;
+            font-family: var(--ffm)
+        }
+
+        .status-msg.error {
+            color: #9b4040
+        }
+
+        .status-msg.info {
+            color: var(--text-dim)
+        }
+
+        .settings-hint {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: .68rem;
+            color: var(--text-faint)
+        }
+
+        .settings-hint a {
+            color: var(--text-dim);
+            text-decoration: none
+        }
+
+        .settings-hint a:hover {
+            color: var(--text)
+        }
+
+        #vault-screen {
+            display: none;
+            flex-direction: column;
+            min-height: 100vh
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            padding: .8rem 1.5rem;
+            background: var(--s1)
+        }
+
+        .topbar-brand {
+            font-size: .95rem;
+            font-weight: 600;
+            color: var(--text);
+            letter-spacing: -.02em;
+            margin-right: 1.5rem
+        }
+
+        .topbar-meta {
+            flex: 1;
+            font-size: .68rem;
+            color: var(--text-dim)
+        }
+
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: .75rem
+        }
+
+        .save-indicator {
+            font-size: .65rem;
+            color: var(--text-faint);
+            display: flex;
+            align-items: center;
+            gap: .4rem;
+            font-family: var(--ffm)
+        }
+
+        .save-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--text-faint)
+        }
+
+        .save-dot.saving {
+            background: #c8a840;
+            animation: blink .7s infinite
+        }
+
+        .save-dot.saved {
+            background: #4a8a5a
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1
+            }
+
+            50% {
+                opacity: .2
+            }
+        }
+
+        .btn-sm {
+            background: var(--s2);
+            border: none;
+            border-radius: 8px;
+            color: var(--text-dim);
+            font-family: var(--ff);
+            font-size: .7rem;
+            font-weight: 500;
+            padding: .4rem .9rem;
+            cursor: pointer;
+            transition: all .15s;
+            text-decoration: none;
+            display: inline-block
+        }
+
+        .btn-sm:hover {
+            background: var(--s3);
+            color: var(--text)
+        }
+
+        .btn-sm.danger:hover {
+            background: #ddd0cc;
+            color: #9b4040
+        }
+
+        .vault-body {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            height: calc(100vh - 53px)
+        }
+
+        .sidebar {
+            background: var(--s1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden
+        }
+
+        .sidebar-search {
+            padding: .75rem .9rem;
+            border-bottom: 1px solid var(--s2)
+        }
+
+        .sidebar-search input {
+            border-radius: 8px;
+            font-size: .78rem
+        }
+
+        .sidebar-section-label {
+            font-size: .62rem;
+            font-weight: 500;
+            color: var(--text-faint);
+            letter-spacing: .06em;
+            padding: .6rem .9rem .2rem;
+            text-transform: uppercase
+        }
+
+        .entry-list {
+            flex: 1;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--s3) transparent;
+            padding: .4rem .6rem
+        }
+
+        .entry-item {
+            display: flex;
+            align-items: center;
+            gap: .6rem;
+            padding: .6rem .7rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background .15s;
+            margin-bottom: 2px
+        }
+
+        .entry-item:hover {
+            background: var(--s2)
+        }
+
+        .entry-item.active {
+            background: var(--s3)
+        }
+
+        .entry-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            background: var(--s3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: .72rem;
+            color: var(--text-dim);
+            flex-shrink: 0;
+            text-transform: uppercase
+        }
+
+        .entry-item.active .entry-avatar {
+            background: var(--s4)
+        }
+
+        .entry-info {
+            flex: 1;
+            min-width: 0
+        }
+
+        .entry-name {
+            font-size: .8rem;
+            font-weight: 500;
+            color: var(--text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis
+        }
+
+        .entry-username {
+            font-size: .65rem;
+            color: var(--text-dim);
+            margin-top: .1rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-family: var(--ffm)
+        }
+
+        .entry-delete-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-faint);
+            font-size: .65rem;
+            opacity: 0;
+            transition: all .15s;
+            flex-shrink: 0
+        }
+
+        .entry-item:hover .entry-delete-btn {
+            opacity: 1
+        }
+
+        .entry-delete-btn:hover {
+            color: #9b4040
+        }
+
+        .zero-state {
+            padding: 2rem .9rem;
+            font-size: .68rem;
+            color: var(--text-faint);
+            text-align: center;
+            line-height: 2.2
+        }
+
+        .sidebar-footer {
+            padding: .75rem .6rem;
+            border-top: 1px solid var(--s2)
+        }
+
+        .btn-add {
+            width: 100%;
+            background: transparent;
+            border: 1.5px dashed var(--s4);
+            border-radius: 10px;
+            color: var(--text-dim);
+            font-family: var(--ff);
+            font-size: .72rem;
+            font-weight: 500;
+            padding: .55rem;
+            cursor: pointer;
+            transition: all .2s
+        }
+
+        .btn-add:hover {
+            border-color: var(--text-dim);
+            background: var(--s2)
+        }
+
+        .detail-panel {
+            padding: 2rem;
+            overflow-y: auto;
+            background: var(--bg)
+        }
+
+        .empty-state {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center
+        }
+
+        .empty-state-text {
+            font-size: .75rem;
+            color: var(--text-faint)
+        }
+
+        .detail-card {
+            display: none;
+            animation: up .25s ease both;
+            max-width: 480px
+        }
+
+        .detail-card.visible {
+            display: block
+        }
+
+        .detail-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.8rem
+        }
+
+        .detail-icon-name {
+            display: flex;
+            align-items: center;
+            gap: .9rem
+        }
+
+        .detail-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: var(--s2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--text-dim);
+            text-transform: uppercase
+        }
+
+        .detail-site-name {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--text);
+            letter-spacing: -.01em
+        }
+
+        .detail-site-url {
+            font-size: .65rem;
+            color: var(--text-dim);
+            margin-top: .15rem;
+            font-family: var(--ffm)
+        }
+
+        .btn-edit {
+            background: var(--s2);
+            border: none;
+            border-radius: 8px;
+            color: var(--text-dim);
+            font-family: var(--ff);
+            font-size: .7rem;
+            font-weight: 500;
+            padding: .4rem .9rem;
+            cursor: pointer;
+            transition: all .15s
+        }
+
+        .btn-edit:hover {
+            background: var(--s3);
+            color: var(--text)
+        }
+
+        .data-card {
+            background: var(--s1);
+            border-radius: var(--r);
+            padding: 0;
+            overflow: hidden;
+            margin-bottom: 1rem
+        }
+
+        .data-row {
+            display: flex;
+            align-items: stretch;
+            padding: .7rem .9rem;
+            border-bottom: 1px solid var(--bg)
+        }
+
+        .data-row:last-child {
+            border-bottom: none
+        }
+
+        .data-label {
+            font-size: .62rem;
+            font-weight: 500;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            min-width: 90px;
+            display: flex;
+            align-items: center
+        }
+
+        .data-value {
+            flex: 1;
+            font-family: var(--ffm);
+            font-size: .8rem;
+            color: var(--text);
+            padding: 0 .5rem;
+            word-break: break-all
+        }
+
+        .data-value.masked {
+            color: var(--text-faint);
+            letter-spacing: .12em
+        }
+
+        .data-actions {
+            display: flex;
+            gap: .4rem;
+            align-items: center;
+            flex-shrink: 0
+        }
+
+        .data-btn {
+            background: var(--s2);
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            padding: .3rem .6rem;
+            font-family: var(--ff);
+            font-size: .62rem;
+            font-weight: 500;
+            color: var(--text-dim);
+            transition: all .15s;
+            white-space: nowrap
+        }
+
+        .data-btn:hover,
+        .data-btn.copied {
+            background: var(--s3);
+            color: var(--text)
+        }
+
+        .pw-strength {
+            display: flex;
+            align-items: center;
+            gap: .6rem;
+            padding: .4rem .9rem;
+            background: var(--s1);
+            border-radius: 0 0 var(--r) var(--r);
+            margin-top: -1rem;
+            margin-bottom: 1rem
+        }
+
+        .pw-strength-bar {
+            flex: 1;
+            height: 3px;
+            background: var(--s3);
+            border-radius: 2px;
+            overflow: hidden
+        }
+
+        .pw-strength-fill {
+            height: 100%;
+            transition: width .4s, background .4s;
+            border-radius: 2px
+        }
+
+        .pw-strength-label {
+            font-size: .62rem;
+            color: var(--text-faint)
+        }
+
+        .detail-delete-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: .68rem;
+            color: var(--text-faint);
+            font-family: var(--ff);
+            margin-top: .5rem;
+            padding: .3rem 0;
+            transition: color .15s
+        }
+
+        .detail-delete-btn:hover {
+            color: #9b4040
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(74, 71, 66, .4);
+            backdrop-filter: blur(4px);
+            z-index: 100;
+            align-items: center;
+            justify-content: center
+        }
+
+        .modal-overlay.open {
+            display: flex;
+            animation: up .2s ease both
+        }
+
+        .modal {
+            background: var(--bg);
+            border-radius: 20px;
+            width: 100%;
+            max-width: 420px;
+            overflow: hidden
+        }
+
+        .modal-head {
+            padding: 1.2rem 1.5rem .8rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between
+        }
+
+        .modal-title {
+            font-size: .95rem;
+            font-weight: 600;
+            color: var(--text);
+            letter-spacing: -.01em
+        }
+
+        .modal-close {
+            background: var(--s2);
+            border: none;
+            border-radius: 50%;
+            width: 26px;
+            height: 26px;
+            cursor: pointer;
+            color: var(--text-dim);
+            font-size: .75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all .15s
+        }
+
+        .modal-close:hover {
+            background: var(--s3)
+        }
+
+        .modal-body {
+            padding: 0 1.5rem 1.2rem
+        }
+
+        .modal-body input {
+            border-radius: var(--rs);
+            font-size: .82rem
+        }
+
+        .gen-btn {
+            width: 100%;
+            margin-top: .4rem;
+            background: var(--s1);
+            border: none;
+            border-radius: var(--rs);
+            color: var(--text-dim);
+            font-family: var(--ff);
+            font-size: .7rem;
+            font-weight: 500;
+            padding: .5rem;
+            cursor: pointer;
+            transition: all .15s
+        }
+
+        .gen-btn:hover {
+            background: var(--s2);
+            color: var(--text)
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: .6rem;
+            padding: .9rem 1.5rem;
+            background: var(--s1)
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: .65rem;
+            border: none;
+            border-radius: var(--rs);
+            cursor: pointer;
+            font-family: var(--ff);
+            font-size: .75rem;
+            font-weight: 500;
+            transition: all .15s
+        }
+
+        .modal-btn {
+            background: var(--s2);
+            color: var(--text-dim)
+        }
+
+        .modal-btn:hover {
+            background: var(--s3);
+            color: var(--text)
+        }
+
+        .modal-btn.primary {
+            background: var(--text);
+            color: var(--bg)
+        }
+
+        .modal-btn.primary:hover {
+            background: #3a3835
+        }
+
+        #toast {
+            position: fixed;
+            bottom: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(16px);
+            background: var(--text);
+            color: var(--bg);
+            padding: .5rem 1.2rem;
+            border-radius: 20px;
+            font-family: var(--ff);
+            font-size: .72rem;
+            font-weight: 500;
+            opacity: 0;
+            transition: opacity .2s, transform .2s;
+            pointer-events: none;
+            z-index: 200;
+            white-space: nowrap
+        }
+
+        #toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0)
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid var(--s3);
+            border-top-color: var(--bg);
+            border-radius: 50%;
+            animation: spin .7s linear infinite;
+            vertical-align: middle;
+            margin-right: .4rem
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg)
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--s3);
+            border-radius: 2px
+        }
+    </style>
+</head>
+
+<body>
+    <div id="lock-screen">
+        <div class="lock-logo">
+            <div class="lock-logo-name">Kronos</div>
+            <div class="lock-logo-sub">zero-knowledge vault</div>
+            <div class="lock-logo-dots">
+                <div class="lock-logo-dot" style="background:#c8a840;opacity:.6"></div>
+                <div class="lock-logo-dot" style="background:#40a870;opacity:.6"></div>
+                <div class="lock-logo-dot" style="background:#4070c8;opacity:.6"></div>
+            </div>
+        </div>
+        <div class="lock-card">
+            <div class="field-group"><label class="field-label" for="master-pw">Master passphrase</label>
+                <div class="input-wrap"><input type="password" id="master-pw" autocomplete="current-password"
+                        placeholder="Enter passphrase…" /><button class="eye-btn"
+                        onclick="K.togglePwVisibility('master-pw')">👁</button></div>
+            </div>
+            <button class="btn-primary" id="unlock-btn" onclick="K.unlock()">Unlock vault</button>
+            <div class="status-msg info" id="lock-status"></div>
+        </div>
+        <div class="settings-hint"><a href="../settings.html">Change theme</a></div>
+    </div>
+    <div id="vault-screen">
+        <div class="topbar">
+            <div class="topbar-brand">Kronos</div>
+            <div class="topbar-meta"><span id="entry-count">0</span> entries</div>
+            <div class="topbar-actions">
+                <div class="save-indicator">
+                    <div class="save-dot saved" id="save-dot"></div><span id="save-label">Saved</span>
+                </div>
+                <a href="../settings.html" class="btn-sm">Theme</a>
+                <button class="btn-sm danger" onclick="K.lock()">Lock</button>
+            </div>
+        </div>
+        <div class="vault-body">
+            <div class="sidebar">
+                <div class="sidebar-search"><input type="search" id="search-input" placeholder="Search…"
+                        oninput="K.renderList()" /></div>
+                <div class="sidebar-section-label">Entries</div>
+                <div class="entry-list" id="entry-list">
+                    <div class="zero-state" id="zero-state">No entries yet.<br>Add your first.</div>
+                </div>
+                <div class="sidebar-footer"><button class="btn-add" onclick="K.openAddModal()">+ Add entry</button>
+                </div>
+            </div>
+            <div class="detail-panel">
+                <div class="empty-state" id="empty-state">
+                    <div class="empty-state-text">Select an entry</div>
+                </div>
+                <div class="detail-card" id="detail-card">
+                    <div class="detail-header">
+                        <div class="detail-icon-name">
+                            <div class="detail-avatar" id="detail-avatar"></div>
+                            <div>
+                                <div class="detail-site-name" id="detail-name"></div>
+                                <div class="detail-site-url" id="detail-url-val"></div>
+                            </div>
+                        </div>
+                        <button class="btn-edit" onclick="K.openEditModal()">Edit</button>
+                    </div>
+                    <div id="detail-username-section">
+                        <div class="data-card">
+                            <div class="data-row">
+                                <div class="data-label">Username</div>
+                                <div class="data-value" id="detail-username-val"></div>
+                                <div class="data-actions"><button class="data-btn"
+                                        onclick="copyValEl('detail-username-val',this)">Copy</button></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="data-card">
+                        <div class="data-row">
+                            <div class="data-label">Password</div>
+                            <div class="data-value masked" id="detail-pw-val">••••••••••••</div>
+                            <div class="data-actions"><button class="data-btn" id="pw-reveal-btn"
+                                    onclick="K.toggleReveal()">Show</button><button class="data-btn"
+                                    onclick="K.copyPassword()">Copy</button></div>
+                        </div>
+                    </div>
+                    <div class="pw-strength">
+                        <div class="pw-strength-bar">
+                            <div class="pw-strength-fill" id="pw-strength-fill"></div>
+                        </div><span class="pw-strength-label" id="pw-strength-label"></span>
+                    </div>
+                    <div id="detail-notes-section" style="display:none">
+                        <div class="data-card">
+                            <div class="data-row">
+                                <div class="data-label">Notes</div>
+                                <div class="data-value" id="detail-notes-val"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="detail-delete-btn" onclick="deleteActive()">Delete entry</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal">
+            <div class="modal-head">
+                <div class="modal-title" id="modal-title">New entry</div><button class="modal-close"
+                    onclick="K.closeModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="field-group"><label class="field-label" for="m-site">Site / service</label><input
+                        type="text" id="m-site" placeholder="github.com" /></div>
+                <div class="field-group"><label class="field-label" for="m-url">URL (optional)</label><input type="text"
+                        id="m-url" placeholder="https://github.com" /></div>
+                <div class="field-group"><label class="field-label" for="m-user">Username / email</label><input
+                        type="text" id="m-user" placeholder="you@example.com" /></div>
+                <div class="field-group"><label class="field-label" for="m-pw">Password</label>
+                    <div class="input-wrap"><input type="password" id="m-pw" placeholder="Password" /><button
+                            class="eye-btn" onclick="K.togglePwVisibility('m-pw')">👁</button></div><button
+                        class="gen-btn" onclick="genPw()">Generate strong password</button>
+                </div>
+                <div class="field-group" style="margin-bottom:0"><label class="field-label" for="m-notes">Notes
+                        (optional)</label><input type="text" id="m-notes" placeholder="2FA backup…" /></div>
+            </div>
+            <div class="modal-actions"><button class="modal-btn" onclick="K.closeModal()">Cancel</button><button
+                    class="modal-btn primary" onclick="doSave()">Save entry</button></div>
+        </div>
+    </div>
+    <div id="toast"></div>
+    <script src="kronos-core.js"></script>
+    <script>
+        const K = window.KronosCore;
+        K.init({
+            masterPwInput: document.getElementById('master-pw'), lockScreen: document.getElementById('lock-screen'), vaultScreen: document.getElementById('vault-screen'), searchInput: document.getElementById('search-input'), entryCountEl: document.getElementById('entry-count'),
+            onStatus(m, t) { const el = document.getElementById('lock-status'); el.textContent = m; el.className = 'status-msg ' + t; },
+            onUnlockLoading(l) { const b = document.getElementById('unlock-btn'); b.disabled = l; b.innerHTML = l ? '<span class="spinner"></span>Unlocking…' : 'Unlock vault'; },
+            onSaveState(s) { const d = document.getElementById('save-dot'), l = document.getElementById('save-label'); if (s === 'saving') { d.className = 'save-dot saving'; l.textContent = 'Saving…'; } else if (s === 'saved') { d.className = 'save-dot saved'; l.textContent = 'Saved'; } else { d.className = 'save-dot'; l.textContent = 'Error'; } },
+            onToast(m) { const t = document.getElementById('toast'); t.textContent = m; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2500); },
+            onRenderList(ids, vault, activeId) { const el = document.getElementById('entry-list'), zs = document.getElementById('zero-state'); el.querySelectorAll('.entry-item').forEach(n => n.remove()); zs.style.display = Object.keys(vault).length === 0 ? 'block' : 'none'; ids.forEach((id) => { const e = vault[id], d = document.createElement('div'); d.className = 'entry-item' + (id === activeId ? ' active' : ''); d.dataset.id = id; d.innerHTML = `<div class="entry-avatar">${K.esc(e.site[0].toUpperCase())}</div><div class="entry-info"><div class="entry-name">${K.esc(e.site)}</div><div class="entry-username">${K.esc(e.username || '—')}</div></div><button class="entry-delete-btn" onclick="K.deleteEntry('${id}')">✕</button>`; d.addEventListener('click', ev => { if (!ev.target.classList.contains('entry-delete-btn')) K.showDetail(id); }); el.insertBefore(d, zs); }); },
+            onShowDetail(id, entry) { const card = document.getElementById('detail-card'), empty = document.getElementById('empty-state'); if (!entry) { card.classList.remove('visible'); empty.style.display = 'flex'; return; } empty.style.display = 'none'; card.classList.add('visible'); document.getElementById('detail-name').textContent = entry.site; document.getElementById('detail-avatar').textContent = entry.site[0].toUpperCase(); document.getElementById('detail-url-val').textContent = entry.url || ''; const us = document.getElementById('detail-username-section'); if (entry.username) { us.style.display = 'block'; document.getElementById('detail-username-val').textContent = entry.username; } else us.style.display = 'none'; const pwEl = document.getElementById('detail-pw-val'); pwEl.textContent = '••••••••••••'; pwEl.className = 'data-value masked'; document.getElementById('pw-reveal-btn').textContent = 'Show'; const sc = K.strengthScore(entry.password); document.getElementById('pw-strength-fill').style.cssText = `width:${sc.pct}%;background:${sc.color}`; document.getElementById('pw-strength-label').textContent = sc.label; const ns = document.getElementById('detail-notes-section'); if (entry.notes) { ns.style.display = 'block'; document.getElementById('detail-notes-val').textContent = entry.notes; } else ns.style.display = 'none'; },
+            onToggleReveal(r, pw) { const el = document.getElementById('detail-pw-val'), btn = document.getElementById('pw-reveal-btn'); if (r) { el.textContent = pw; el.className = 'data-value'; btn.textContent = 'Hide'; } else { el.textContent = '••••••••••••'; el.className = 'data-value masked'; btn.textContent = 'Show'; } },
+            onOpenModal(e) { document.getElementById('modal-title').textContent = e ? 'Edit entry' : 'New entry'; document.getElementById('m-site').value = e?.site || ''; document.getElementById('m-url').value = e?.url || ''; document.getElementById('m-user').value = e?.username || ''; document.getElementById('m-pw').value = e?.password || ''; document.getElementById('m-notes').value = e?.notes || ''; document.getElementById('modal-overlay').classList.add('open'); setTimeout(() => document.getElementById('m-site').focus(), 50); },
+            onCloseModal() { document.getElementById('modal-overlay').classList.remove('open'); }
+        });
+        function doSave() { K.saveEntry({ site: document.getElementById('m-site').value.trim(), url: document.getElementById('m-url').value.trim(), username: document.getElementById('m-user').value.trim(), password: document.getElementById('m-pw').value, notes: document.getElementById('m-notes').value.trim() }); }
+        function genPw() { const pw = K.generatePassword(), el = document.getElementById('m-pw'); el.value = pw; el.type = 'text'; setTimeout(() => el.type = 'password', 2000); }
+        function copyValEl(id, btn) { K.copyField(document.getElementById(id).textContent); const o = btn.textContent; btn.textContent = 'Copied'; btn.classList.add('copied'); setTimeout(() => { btn.textContent = o; btn.classList.remove('copied'); }, 1500); }
+        function deleteActive() { const id = K.getActiveId(); if (id) K.deleteEntry(id); }
+    </script>
+</body>
+
+</html>

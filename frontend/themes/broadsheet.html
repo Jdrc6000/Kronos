@@ -1,0 +1,1360 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kronos</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Playfair+Display:ital,wght@0,700;0,900;1,700;1,900&family=IBM+Plex+Mono:wght@300;400;500&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        :root {
+            --ink: #0f0e0b;
+            --ink-dim: #3a3830;
+            --ink-faint: #8a8778;
+            --paper: #f0ead8;
+            --paper-mid: #e6dfc9;
+            --paper-dark: #d8d0b8;
+            --red: #8b1a1a;
+            --rule: 1px solid var(--ink);
+            --rule-thick: 3px solid var(--ink);
+            --rule-hair: 0.5px solid var(--ink-dim);
+            --ff-flag: 'UnifrakturMaguntia', cursive;
+            --ff-disp: 'Playfair Display', serif;
+            --ff-body: 'Libre Baskerville', serif;
+            --ff-mono: 'IBM Plex Mono', monospace;
+        }
+
+        html,
+        body {
+            height: 100%;
+            background: var(--paper);
+            color: var(--ink);
+            font-family: var(--ff-body);
+            font-size: 13px;
+            overflow-x: hidden
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 999;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E")
+        }
+
+        #lock-screen {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            animation: pf .6s ease both
+        }
+
+        @keyframes pf {
+            from {
+                opacity: 0
+            }
+
+            to {
+                opacity: 1
+            }
+        }
+
+        .masthead {
+            border-bottom: var(--rule-thick);
+            padding: 1.2rem 2.5rem 1rem;
+            text-align: center;
+            position: relative
+        }
+
+        .masthead-top-rule {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            margin-bottom: .6rem
+        }
+
+        .masthead-top-rule span {
+            flex: 1;
+            height: 1px;
+            background: var(--ink)
+        }
+
+        .masthead-ornament {
+            font-size: .6rem;
+            letter-spacing: .4em;
+            color: var(--ink-dim);
+            font-family: var(--ff-mono);
+            padding: 0 1rem;
+            text-transform: uppercase
+        }
+
+        .masthead-flag {
+            font-family: var(--ff-flag);
+            font-size: 5rem;
+            line-height: 1;
+            color: var(--ink);
+            display: block
+        }
+
+        .masthead-edition {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: .4rem;
+            padding-top: .5rem;
+            border-top: var(--rule-hair)
+        }
+
+        .masthead-edition span,
+        .masthead-edition a {
+            font-family: var(--ff-mono);
+            font-size: .58rem;
+            letter-spacing: .12em;
+            color: var(--ink-dim);
+            text-transform: uppercase;
+            text-decoration: none
+        }
+
+        .masthead-edition a:hover {
+            color: var(--red);
+            text-decoration: underline
+        }
+
+        .masthead-edition .ec {
+            font-family: var(--ff-disp);
+            font-style: italic;
+            font-size: .7rem;
+            color: var(--ink-dim)
+        }
+
+        .section-bar {
+            background: var(--ink);
+            color: var(--paper);
+            font-family: var(--ff-mono);
+            font-size: .58rem;
+            letter-spacing: .3em;
+            text-transform: uppercase;
+            padding: .3rem 2.5rem;
+            display: flex;
+            justify-content: space-between
+        }
+
+        .lock-body {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 2px 1fr 2px 1fr;
+            border-bottom: var(--rule-thick)
+        }
+
+        .lock-col {
+            padding: 2rem;
+            display: flex;
+            flex-direction: column
+        }
+
+        .lock-col-div {
+            background: var(--ink)
+        }
+
+        .col-kicker {
+            font-family: var(--ff-mono);
+            font-size: .55rem;
+            letter-spacing: .25em;
+            text-transform: uppercase;
+            color: var(--ink-dim);
+            margin-bottom: .4rem
+        }
+
+        .col-headline {
+            font-family: var(--ff-disp);
+            font-size: 1.5rem;
+            font-weight: 900;
+            line-height: 1.05;
+            margin-bottom: .8rem;
+            letter-spacing: -.02em
+        }
+
+        .col-headline.i {
+            font-style: italic
+        }
+
+        .col-rule {
+            height: 2px;
+            background: var(--ink);
+            margin-bottom: .8rem
+        }
+
+        .col-body {
+            font-family: var(--ff-body);
+            font-size: .78rem;
+            line-height: 1.7;
+            color: var(--ink-dim)
+        }
+
+        .pullquote {
+            border-left: 4px solid var(--ink);
+            padding-left: 1rem;
+            margin: 1.5rem 0
+        }
+
+        .pullquote p {
+            font-family: var(--ff-disp);
+            font-style: italic;
+            font-size: 1.05rem;
+            line-height: 1.4;
+            color: var(--ink)
+        }
+
+        .pullquote cite {
+            display: block;
+            margin-top: .5rem;
+            font-family: var(--ff-mono);
+            font-size: .55rem;
+            letter-spacing: .15em;
+            color: var(--ink-dim);
+            text-transform: uppercase
+        }
+
+        .ad-block {
+            border: 3px solid var(--ink);
+            padding: 1rem;
+            text-align: center;
+            margin-top: auto
+        }
+
+        .ad-block-head {
+            font-family: var(--ff-disp);
+            font-weight: 900;
+            font-size: 1rem
+        }
+
+        .ad-block-body {
+            font-family: var(--ff-mono);
+            font-size: .55rem;
+            letter-spacing: .15em;
+            color: var(--ink-dim);
+            margin-top: .3rem;
+            text-transform: uppercase
+        }
+
+        .ad-block-rule {
+            height: 1px;
+            background: var(--ink);
+            margin: .5rem 0
+        }
+
+        .classifieds-heading {
+            font-family: var(--ff-mono);
+            font-size: .55rem;
+            letter-spacing: .25em;
+            text-transform: uppercase;
+            color: var(--ink-dim);
+            border-bottom: var(--rule-hair);
+            padding-bottom: .4rem;
+            margin-bottom: .6rem
+        }
+
+        .classified-item {
+            padding: .4rem 0;
+            border-bottom: var(--rule-hair);
+            font-size: .7rem;
+            line-height: 1.5
+        }
+
+        .classified-item strong {
+            font-family: var(--ff-disp);
+            font-weight: 700
+        }
+
+        .lock-footer {
+            padding: .5rem 2.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center
+        }
+
+        .lock-footer span {
+            font-family: var(--ff-mono);
+            font-size: .55rem;
+            letter-spacing: .15em;
+            color: var(--ink-faint);
+            text-transform: uppercase
+        }
+
+        .field-label {
+            display: block;
+            font-family: var(--ff-mono);
+            font-size: .55rem;
+            letter-spacing: .2em;
+            text-transform: uppercase;
+            color: var(--ink-dim);
+            margin-bottom: .3rem
+        }
+
+        .field-group {
+            margin-bottom: 1rem
+        }
+
+        .input-wrap {
+            position: relative
+        }
+
+        input[type="password"],
+        input[type="text"],
+        input[type="search"] {
+            width: 100%;
+            background: var(--paper-mid);
+            border: var(--rule);
+            color: var(--ink);
+            font-family: var(--ff-mono);
+            font-size: .82rem;
+            padding: .6rem 2.2rem .6rem .7rem;
+            outline: none;
+            transition: background .15s;
+            letter-spacing: .04em;
+        }
+
+        input:focus {
+            background: var(--paper-dark)
+        }
+
+        input::placeholder {
+            color: var(--ink-faint)
+        }
+
+        .eye-btn {
+            position: absolute;
+            right: .5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--ink-faint);
+            cursor: pointer;
+            font-size: .75rem;
+            transition: color .15s;
+            padding: .2rem
+        }
+
+        .eye-btn:hover {
+            color: var(--ink)
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: .65rem 1rem;
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            font-family: var(--ff-mono);
+            font-size: .65rem;
+            letter-spacing: .3em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background .15s
+        }
+
+        .btn-primary:hover {
+            background: var(--red)
+        }
+
+        .btn-primary:disabled {
+            background: var(--ink-faint);
+            cursor: not-allowed
+        }
+
+        .status-msg {
+            margin-top: .7rem;
+            font-size: .65rem;
+            font-family: var(--ff-mono);
+            letter-spacing: .08em;
+            min-height: 1rem
+        }
+
+        .status-msg.error {
+            color: var(--red)
+        }
+
+        .status-msg.info {
+            color: var(--ink-faint)
+        }
+
+        #vault-screen {
+            display: none;
+            flex-direction: column;
+            min-height: 100vh
+        }
+
+        .vault-masthead {
+            border-bottom: var(--rule-thick)
+        }
+
+        .vault-masthead-top {
+            display: flex;
+            align-items: stretch;
+            border-bottom: var(--rule)
+        }
+
+        .vault-brand {
+            padding: .7rem 1.5rem;
+            border-right: var(--rule);
+            display: flex;
+            align-items: center;
+            gap: .6rem
+        }
+
+        .vault-brand-name {
+            font-family: var(--ff-flag);
+            font-size: 1.8rem;
+            line-height: 1;
+            color: var(--ink)
+        }
+
+        .vault-masthead-meta {
+            flex: 1;
+            padding: .4rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 2rem
+        }
+
+        .vault-meta-item {
+            font-family: var(--ff-mono);
+            font-size: .55rem;
+            letter-spacing: .12em;
+            color: var(--ink-dim);
+            text-transform: uppercase
+        }
+
+        .vault-meta-item strong {
+            color: var(--ink);
+            display: block;
+            font-size: .65rem
+        }
+
+        .vault-actions {
+            padding: .5rem 1.5rem;
+            border-left: var(--rule);
+            display: flex;
+            align-items: center;
+            gap: .75rem
+        }
+
+        .btn-sm {
+            padding: .35rem .9rem;
+            background: transparent;
+            border: var(--rule);
+            color: var(--ink-dim);
+            cursor: pointer;
+            font-family: var(--ff-mono);
+            font-size: .58rem;
+            letter-spacing: .15em;
+            text-transform: uppercase;
+            transition: all .15s
+        }
+
+        .btn-sm:hover {
+            background: var(--ink);
+            color: var(--paper)
+        }
+
+        .btn-sm.danger:hover {
+            background: var(--red);
+            border-color: var(--red);
+            color: var(--paper)
+        }
+
+        .save-indicator {
+            font-family: var(--ff-mono);
+            font-size: .55rem;
+            letter-spacing: .12em;
+            color: var(--ink-faint);
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: .4rem
+        }
+
+        .save-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: var(--ink-faint)
+        }
+
+        .save-dot.saving {
+            background: #b07820;
+            animation: blink .7s infinite
+        }
+
+        .save-dot.saved {
+            background: #2a6b2a
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1
+            }
+
+            50% {
+                opacity: .2
+            }
+        }
+
+        .vault-nav {
+            display: flex;
+            border-bottom: var(--rule-thick);
+            background: var(--ink)
+        }
+
+        .vault-nav-section {
+            padding: .3rem 1.5rem;
+            font-family: var(--ff-mono);
+            font-size: .55rem;
+            letter-spacing: .25em;
+            text-transform: uppercase;
+            color: rgba(240, 234, 216, .5);
+            border-right: 1px solid rgba(255, 255, 255, .1)
+        }
+
+        .vault-nav-section.active {
+            color: var(--paper)
+        }
+
+        .vault-nav-section.add-btn {
+            margin-left: auto;
+            border-right: none;
+            border-left: 1px solid rgba(255, 255, 255, .1);
+            cursor: pointer;
+            color: var(--paper);
+            transition: background .15s
+        }
+
+        .vault-nav-section.add-btn:hover {
+            background: var(--red)
+        }
+
+        .vault-body {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 260px 3px 1fr;
+            height: calc(100vh - 106px)
+        }
+
+        .vault-sidebar {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden
+        }
+
+        .sidebar-head {
+            padding: .5rem 1rem;
+            border-bottom: var(--rule);
+            background: var(--paper-mid)
+        }
+
+        .sidebar-head input {
+            padding: .4rem .6rem;
+            font-size: .72rem
+        }
+
+        .entry-list {
+            flex: 1;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--ink-dim) var(--paper-mid)
+        }
+
+        .entry-item {
+            padding: .65rem 1rem;
+            border-bottom: var(--rule-hair);
+            cursor: pointer;
+            transition: background .1s;
+            display: flex;
+            align-items: flex-start;
+            gap: .6rem
+        }
+
+        .entry-item:hover {
+            background: var(--paper-mid)
+        }
+
+        .entry-item.active {
+            background: var(--ink)
+        }
+
+        .entry-item.active .entry-name {
+            color: var(--paper)
+        }
+
+        .entry-item.active .entry-username {
+            color: rgba(240, 234, 216, .5)
+        }
+
+        .entry-item.active .entry-index {
+            color: rgba(240, 234, 216, .35)
+        }
+
+        .entry-index {
+            font-family: var(--ff-mono);
+            font-size: .55rem;
+            color: var(--ink-faint);
+            min-width: 18px;
+            padding-top: 1px
+        }
+
+        .entry-info {
+            flex: 1;
+            min-width: 0
+        }
+
+        .entry-name {
+            font-family: var(--ff-disp);
+            font-weight: 700;
+            font-size: .85rem;
+            color: var(--ink);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis
+        }
+
+        .entry-username {
+            font-family: var(--ff-mono);
+            font-size: .6rem;
+            color: var(--ink-faint);
+            margin-top: .1rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis
+        }
+
+        .entry-delete-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--ink-faint);
+            font-size: .65rem;
+            opacity: 0;
+            transition: all .15s;
+            padding: 0 .2rem;
+            flex-shrink: 0
+        }
+
+        .entry-item:hover .entry-delete-btn {
+            opacity: 1
+        }
+
+        .entry-delete-btn:hover {
+            color: var(--red)
+        }
+
+        .zero-state {
+            padding: 2rem 1rem;
+            text-align: center;
+            font-family: var(--ff-mono);
+            font-size: .6rem;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            color: var(--ink-faint);
+            line-height: 2.2
+        }
+
+        .col-div-v {
+            background: var(--ink)
+        }
+
+        .detail-panel {
+            overflow-y: auto;
+            padding: 2rem 2.5rem;
+            background: var(--paper)
+        }
+
+        .empty-state {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: .8rem
+        }
+
+        .empty-state-rule {
+            width: 60px;
+            height: 2px;
+            background: var(--ink-faint)
+        }
+
+        .empty-state-text {
+            font-family: var(--ff-disp);
+            font-style: italic;
+            font-size: 1.1rem;
+            color: var(--ink-faint)
+        }
+
+        .detail-card {
+            display: none;
+            animation: pf .2s ease both
+        }
+
+        .detail-card.visible {
+            display: block
+        }
+
+        .article-kicker {
+            font-family: var(--ff-mono);
+            font-size: .55rem;
+            letter-spacing: .25em;
+            text-transform: uppercase;
+            color: var(--red);
+            margin-bottom: .3rem
+        }
+
+        .article-headline {
+            font-family: var(--ff-disp);
+            font-size: 2.2rem;
+            font-weight: 900;
+            line-height: 1.05;
+            letter-spacing: -.02em;
+            margin-bottom: .5rem
+        }
+
+        .article-byline {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: .5rem 0;
+            border-top: var(--rule);
+            border-bottom: var(--rule);
+            margin-bottom: 1.5rem
+        }
+
+        .byline-item {
+            font-family: var(--ff-mono);
+            font-size: .58rem;
+            letter-spacing: .1em;
+            color: var(--ink-dim);
+            text-transform: uppercase
+        }
+
+        .byline-item strong {
+            color: var(--ink)
+        }
+
+        .byline-sep {
+            color: var(--ink-faint);
+            font-size: .5rem
+        }
+
+        .article-edit-btn {
+            margin-left: auto;
+            padding: .25rem .7rem;
+            background: transparent;
+            border: var(--rule);
+            color: var(--ink-dim);
+            cursor: pointer;
+            font-family: var(--ff-mono);
+            font-size: .55rem;
+            letter-spacing: .15em;
+            text-transform: uppercase;
+            transition: all .15s
+        }
+
+        .article-edit-btn:hover {
+            background: var(--ink);
+            color: var(--paper)
+        }
+
+        .data-section {
+            margin-bottom: 1.5rem
+        }
+
+        .data-section-head {
+            background: var(--ink);
+            color: var(--paper);
+            padding: .25rem .6rem;
+            font-family: var(--ff-mono);
+            font-size: .55rem;
+            letter-spacing: .25em;
+            text-transform: uppercase
+        }
+
+        .data-row {
+            display: flex;
+            align-items: stretch;
+            border: var(--rule);
+            border-top: none
+        }
+
+        .data-label {
+            padding: .55rem .7rem;
+            font-family: var(--ff-mono);
+            font-size: .58rem;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            color: var(--ink-dim);
+            background: var(--paper-mid);
+            border-right: var(--rule);
+            min-width: 110px;
+            display: flex;
+            align-items: center
+        }
+
+        .data-value {
+            flex: 1;
+            padding: .55rem .7rem;
+            font-family: var(--ff-mono);
+            font-size: .82rem;
+            color: var(--ink);
+            display: flex;
+            align-items: center;
+            word-break: break-all
+        }
+
+        .data-value.masked {
+            letter-spacing: .18em;
+            color: var(--ink-faint)
+        }
+
+        .data-actions {
+            display: flex;
+            border-left: var(--rule)
+        }
+
+        .data-btn {
+            background: none;
+            border: none;
+            border-left: var(--rule);
+            cursor: pointer;
+            padding: 0 .7rem;
+            font-family: var(--ff-mono);
+            font-size: .55rem;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            color: var(--ink-faint);
+            transition: all .15s;
+            white-space: nowrap
+        }
+
+        .data-btn:first-child {
+            border-left: none
+        }
+
+        .data-btn:hover,
+        .data-btn.copied {
+            background: var(--ink);
+            color: var(--paper)
+        }
+
+        .pw-strength {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            padding: .3rem .7rem;
+            border: var(--rule);
+            border-top: none;
+            background: var(--paper-mid)
+        }
+
+        .pw-strength-bar {
+            flex: 1;
+            height: 2px;
+            background: var(--paper-dark)
+        }
+
+        .pw-strength-fill {
+            height: 100%;
+            transition: width .4s, background .4s
+        }
+
+        .pw-strength-label {
+            font-family: var(--ff-mono);
+            font-size: .55rem;
+            letter-spacing: .1em;
+            color: var(--ink-faint);
+            text-transform: uppercase
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 14, 11, .75);
+            z-index: 100;
+            align-items: center;
+            justify-content: center
+        }
+
+        .modal-overlay.open {
+            display: flex;
+            animation: pf .15s ease both
+        }
+
+        .modal {
+            background: var(--paper);
+            border: 3px solid var(--ink);
+            width: 100%;
+            max-width: 460px;
+            animation: ps .2s ease both
+        }
+
+        @keyframes ps {
+            from {
+                opacity: 0;
+                transform: translateY(16px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+
+        .modal-head {
+            background: var(--ink);
+            color: var(--paper);
+            padding: .6rem 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between
+        }
+
+        .modal-title {
+            font-family: var(--ff-disp);
+            font-weight: 900;
+            font-size: 1rem
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: rgba(240, 234, 216, .5);
+            cursor: pointer;
+            font-size: 1rem;
+            line-height: 1;
+            padding: 0;
+            transition: color .15s
+        }
+
+        .modal-close:hover {
+            color: var(--paper)
+        }
+
+        .modal-body {
+            padding: 1.25rem 1.5rem
+        }
+
+        .modal-actions {
+            display: flex;
+            border-top: var(--rule)
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: .65rem;
+            background: transparent;
+            border: none;
+            border-right: var(--rule);
+            color: var(--ink-dim);
+            cursor: pointer;
+            font-family: var(--ff-mono);
+            font-size: .6rem;
+            letter-spacing: .2em;
+            text-transform: uppercase;
+            transition: all .15s
+        }
+
+        .modal-btn:last-child {
+            border-right: none
+        }
+
+        .modal-btn:hover {
+            background: var(--paper-dark);
+            color: var(--ink)
+        }
+
+        .modal-btn.primary {
+            color: var(--ink)
+        }
+
+        .modal-btn.primary:hover {
+            background: var(--ink);
+            color: var(--paper)
+        }
+
+        .gen-btn {
+            width: 100%;
+            margin-top: .4rem;
+            padding: .4rem;
+            background: transparent;
+            border: 1px dashed var(--ink-faint);
+            color: var(--ink-faint);
+            cursor: pointer;
+            font-family: var(--ff-mono);
+            font-size: .58rem;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            transition: all .15s
+        }
+
+        .gen-btn:hover {
+            border-color: var(--ink);
+            color: var(--ink);
+            border-style: solid
+        }
+
+        #toast {
+            position: fixed;
+            bottom: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(16px);
+            background: var(--ink);
+            color: var(--paper);
+            padding: .5rem 1.2rem;
+            font-family: var(--ff-mono);
+            font-size: .62rem;
+            letter-spacing: .15em;
+            text-transform: uppercase;
+            opacity: 0;
+            transition: opacity .2s, transform .2s;
+            pointer-events: none;
+            z-index: 200;
+            white-space: nowrap
+        }
+
+        #toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0)
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 11px;
+            height: 11px;
+            border: 1.5px solid rgba(240, 234, 216, .3);
+            border-top-color: var(--paper);
+            border-radius: 50%;
+            animation: spin .7s linear infinite;
+            vertical-align: middle;
+            margin-right: .4rem
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg)
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--paper-mid)
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--ink-dim)
+        }
+    </style>
+</head>
+
+<body>
+    <div id="lock-screen">
+        <div class="masthead">
+            <div class="masthead-top-rule"><span></span>
+                <div class="masthead-ornament">Est. 2026 · Zero-Knowledge · Argon2id + AES-GCM</div><span></span>
+            </div>
+            <div class="masthead-flag">Kronos</div>
+            <div class="masthead-edition">
+                <span id="lock-date"></span>
+                <span class="ec">The password vault of record</span>
+                <a href="../settings.html">⚙ Change Theme</a>
+            </div>
+        </div>
+        <div class="section-bar"><span>Vault Access</span><span>Secured with military-grade encryption</span></div>
+        <div class="lock-body">
+            <div class="lock-col">
+                <div class="col-kicker">Today's edition</div>
+                <div class="col-headline i">All your credentials,<br>under lock & key.</div>
+                <div class="col-rule"></div>
+                <div class="col-body">Kronos employs Argon2id key derivation paired with AES-256-GCM authenticated
+                    encryption. Your master password never leaves this machine.</div>
+                <div class="pullquote" style="margin-top:1.2rem">
+                    <p>"The only secure system is one that is powered off, cast in concrete, and sealed in a lead-lined
+                        room."</p><cite>— Gene Spafford</cite>
+                </div>
+            </div>
+            <div class="lock-col-div"></div>
+            <div class="lock-col">
+                <div class="col-kicker">Credentials Required</div>
+                <div class="col-headline">Unlock the Vault</div>
+                <div class="col-rule"></div>
+                <div class="field-group">
+                    <label class="field-label" for="master-pw">Master Passphrase</label>
+                    <div class="input-wrap"><input type="password" id="master-pw" autocomplete="current-password"
+                            placeholder="Enter passphrase…" /><button class="eye-btn"
+                            onclick="K.togglePwVisibility('master-pw')">👁</button></div>
+                </div>
+                <button class="btn-primary" id="unlock-btn" onclick="K.unlock()">Unlock Vault</button>
+                <div class="status-msg info" id="lock-status"></div>
+                <div style="margin-top:1.5rem;padding-top:1rem;border-top:1px dashed var(--ink-faint)">
+                    <p class="col-body" style="font-size:.68rem">No vault? Enter ≥8 character passphrase to create one.
+                        Stored locally at <code style="font-family:var(--ff-mono);font-size:.65rem">vault.json</code>.
+                    </p>
+                </div>
+            </div>
+            <div class="lock-col-div"></div>
+            <div class="lock-col">
+                <div class="col-kicker">Technical Notices</div>
+                <div class="col-headline">Security Briefs</div>
+                <div class="col-rule"></div>
+                <div class="classifieds-heading">Encryption Specifications</div>
+                <div class="classified-item"><strong>KDF</strong> — Argon2id, 64 MiB, 3 iter, 4 threads</div>
+                <div class="classified-item"><strong>Cipher</strong> — AES-256-GCM authenticated encryption</div>
+                <div class="classified-item"><strong>Salt</strong> — 128-bit random, per-save</div>
+                <div class="classified-item"><strong>IV</strong> — 96-bit nonce, per-save</div>
+                <div class="classified-item"><strong>Storage</strong> — Local only. No cloud. No telemetry.</div>
+                <div class="ad-block" style="margin-top:1.5rem">
+                    <div class="ad-block-rule"></div>
+                    <div class="ad-block-head">Zero Knowledge.</div>
+                    <div class="ad-block-body">The server never sees your plaintext.<br>Your secrets remain yours alone.
+                    </div>
+                    <div class="ad-block-rule"></div>
+                </div>
+            </div>
+        </div>
+        <div class="lock-footer"><span>Kronos Password Manager</span><span>· · ·</span><span>All data encrypted at
+                rest</span><span>· · ·</span><span>MIT License</span></div>
+    </div>
+
+    <div id="vault-screen">
+        <div class="vault-masthead">
+            <div class="vault-masthead-top">
+                <div class="vault-brand">
+                    <div class="vault-brand-name">Kronos</div>
+                </div>
+                <div class="vault-masthead-meta">
+                    <div class="vault-meta-item"><strong id="entry-count">0</strong>Entries</div>
+                    <div class="vault-meta-item"><strong>Vault</strong>Unlocked</div>
+                </div>
+                <div class="vault-actions">
+                    <div class="save-indicator">
+                        <div class="save-dot saved" id="save-dot"></div><span id="save-label">Saved</span>
+                    </div>
+                    <a href="../settings.html" class="btn-sm"
+                        style="text-decoration:none;display:inline-block;">Theme</a>
+                    <button class="btn-sm danger" onclick="K.lock()">Lock</button>
+                </div>
+            </div>
+        </div>
+        <div class="vault-nav">
+            <div class="vault-nav-section active">All Credentials</div>
+            <div class="vault-nav-section" style="font-size:.5rem;align-self:center;color:rgba(240,234,216,.3)">⌘N new ·
+                ⌘K search</div>
+            <div class="vault-nav-section add-btn" onclick="K.openAddModal()">+ Add Entry</div>
+        </div>
+        <div class="vault-body">
+            <div class="vault-sidebar">
+                <div class="sidebar-head">
+                    <div class="input-wrap"><input type="search" id="search-input" placeholder="Search entries…"
+                            oninput="K.renderList()" /></div>
+                </div>
+                <div class="entry-list" id="entry-list">
+                    <div class="zero-state" id="zero-state">No entries.<br>Add your first.</div>
+                </div>
+            </div>
+            <div class="col-div-v"></div>
+            <div class="detail-panel">
+                <div class="empty-state" id="empty-state">
+                    <div class="empty-state-rule"></div>
+                    <div class="empty-state-text">Select an entry to read</div>
+                    <div class="empty-state-rule"></div>
+                </div>
+                <div class="detail-card" id="detail-card">
+                    <div class="article-kicker">Credential Record</div>
+                    <div class="article-headline" id="detail-name"></div>
+                    <div class="article-byline">
+                        <div class="byline-item">URL <strong id="detail-url-val">—</strong></div>
+                        <span class="byline-sep">◆</span>
+                        <div class="byline-item">Status <strong style="color:#2a6b2a">Active</strong></div>
+                        <button class="article-edit-btn" onclick="K.openEditModal()">Edit Record</button>
+                    </div>
+                    <div class="data-section" id="detail-username-section">
+                        <div class="data-section-head">Identity</div>
+                        <div class="data-row">
+                            <div class="data-label">Username</div>
+                            <div class="data-value" id="detail-username-val"></div>
+                            <div class="data-actions"><button class="data-btn"
+                                    onclick="copyValEl('detail-username-val',this)">Copy</button></div>
+                        </div>
+                    </div>
+                    <div class="data-section">
+                        <div class="data-section-head">Authentication</div>
+                        <div class="data-row">
+                            <div class="data-label">Password</div>
+                            <div class="data-value masked" id="detail-pw-val">••••••••••••</div>
+                            <div class="data-actions"><button class="data-btn" id="pw-reveal-btn"
+                                    onclick="K.toggleReveal()">Show</button><button class="data-btn"
+                                    onclick="K.copyPassword()">Copy</button></div>
+                        </div>
+                        <div class="pw-strength">
+                            <div class="pw-strength-bar">
+                                <div class="pw-strength-fill" id="pw-strength-fill"></div>
+                            </div><span class="pw-strength-label" id="pw-strength-label"></span>
+                        </div>
+                    </div>
+                    <div class="data-section" id="detail-notes-section">
+                        <div class="data-section-head">Notes</div>
+                        <div class="data-row">
+                            <div class="data-label">Memo</div>
+                            <div class="data-value" id="detail-notes-val"></div>
+                        </div>
+                    </div>
+                    <div style="margin-top:1rem;padding-top:.8rem;border-top:1px dashed var(--ink-faint)">
+                        <span
+                            style="border:var(--rule);padding:.2rem .5rem;cursor:pointer;font-family:var(--ff-mono);font-size:.55rem;letter-spacing:.15em;color:var(--red);text-transform:uppercase"
+                            onclick="deleteActive()">Delete Record</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal">
+            <div class="modal-head">
+                <div class="modal-title" id="modal-title">New Entry</div><button class="modal-close"
+                    onclick="K.closeModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="field-group"><label class="field-label" for="m-site">Site / Service</label><input
+                        type="text" id="m-site" placeholder="github.com" /></div>
+                <div class="field-group"><label class="field-label" for="m-url">URL (optional)</label><input type="text"
+                        id="m-url" placeholder="https://github.com" /></div>
+                <div class="field-group"><label class="field-label" for="m-user">Username / Email</label><input
+                        type="text" id="m-user" placeholder="you@example.com" /></div>
+                <div class="field-group"><label class="field-label" for="m-pw">Password</label>
+                    <div class="input-wrap"><input type="password" id="m-pw" placeholder="Password" /><button
+                            class="eye-btn" onclick="K.togglePwVisibility('m-pw')">👁</button></div><button
+                        class="gen-btn" onclick="genPw()">⚙ Generate Strong Password</button>
+                </div>
+                <div class="field-group" style="margin-bottom:0"><label class="field-label" for="m-notes">Notes
+                        (optional)</label><input type="text" id="m-notes" placeholder="2FA backup, recovery codes…" />
+                </div>
+            </div>
+            <div class="modal-actions"><button class="modal-btn" onclick="K.closeModal()">Cancel</button><button
+                    class="modal-btn primary" onclick="doSave()">Save Entry</button></div>
+        </div>
+    </div>
+    <div id="toast"></div>
+    <script src="kronos-core.js"></script>
+    <script>
+        const K = window.KronosCore;
+        document.getElementById('lock-date').textContent = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
+        K.init({
+            masterPwInput: document.getElementById('master-pw'),
+            lockScreen: document.getElementById('lock-screen'),
+            vaultScreen: document.getElementById('vault-screen'),
+            searchInput: document.getElementById('search-input'),
+            entryCountEl: document.getElementById('entry-count'),
+            onStatus(msg, type) {
+                const el = document.getElementById('lock-status');
+                el.textContent = msg; el.className = 'status-msg ' + type;
+            },
+            onUnlockLoading(loading) {
+                const btn = document.getElementById('unlock-btn');
+                btn.disabled = loading;
+                btn.innerHTML = loading ? '<span class="spinner"></span>Unlocking…' : 'Unlock Vault';
+            },
+            onSaveState(state) {
+                const dot = document.getElementById('save-dot'), lbl = document.getElementById('save-label');
+                if (state === 'saving') { dot.className = 'save-dot saving'; lbl.textContent = 'Saving…'; }
+                else if (state === 'saved') { dot.className = 'save-dot saved'; lbl.textContent = 'Saved'; }
+                else { dot.className = 'save-dot'; lbl.textContent = 'Error'; }
+            },
+            onToast(msg) {
+                const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show');
+                setTimeout(() => t.classList.remove('show'), 2500);
+            },
+            onRenderList(ids, vault, activeId) {
+                const el = document.getElementById('entry-list'), zs = document.getElementById('zero-state');
+                el.querySelectorAll('.entry-item').forEach(n => n.remove());
+                zs.style.display = Object.keys(vault).length === 0 ? 'block' : 'none';
+                ids.forEach((id, i) => {
+                    const e = vault[id], div = document.createElement('div');
+                    div.className = 'entry-item' + (id === activeId ? ' active' : '');
+                    div.dataset.id = id;
+                    div.innerHTML = `<span class="entry-index">${String(i + 1).padStart(2, '0')}</span><div class="entry-info"><div class="entry-name">${K.esc(e.site)}</div><div class="entry-username">${K.esc(e.username || '—')}</div></div><button class="entry-delete-btn" onclick="K.deleteEntry('${id}')">✕</button>`;
+                    div.addEventListener('click', ev => { if (!ev.target.classList.contains('entry-delete-btn')) K.showDetail(id); });
+                    el.insertBefore(div, zs);
+                });
+            },
+            onShowDetail(id, entry) {
+                const card = document.getElementById('detail-card'), empty = document.getElementById('empty-state');
+                if (!entry) { card.classList.remove('visible'); empty.style.display = 'flex'; return; }
+                empty.style.display = 'none'; card.classList.add('visible');
+                document.getElementById('detail-name').textContent = entry.site;
+                document.getElementById('detail-url-val').textContent = entry.url || '—';
+                const us = document.getElementById('detail-username-section');
+                if (entry.username) { us.style.display = 'block'; document.getElementById('detail-username-val').textContent = entry.username; } else us.style.display = 'none';
+                const pwEl = document.getElementById('detail-pw-val');
+                pwEl.textContent = '••••••••••••'; pwEl.className = 'data-value masked';
+                document.getElementById('pw-reveal-btn').textContent = 'Show';
+                const sc = K.strengthScore(entry.password);
+                document.getElementById('pw-strength-fill').style.cssText = `width:${sc.pct}%;background:${sc.color}`;
+                document.getElementById('pw-strength-label').textContent = sc.label;
+                const ns = document.getElementById('detail-notes-section');
+                if (entry.notes) { ns.style.display = 'block'; document.getElementById('detail-notes-val').textContent = entry.notes; } else ns.style.display = 'none';
+            },
+            onToggleReveal(revealed, pw) {
+                const el = document.getElementById('detail-pw-val'), btn = document.getElementById('pw-reveal-btn');
+                if (revealed) { el.textContent = pw; el.className = 'data-value'; btn.textContent = 'Hide'; }
+                else { el.textContent = '••••••••••••'; el.className = 'data-value masked'; btn.textContent = 'Show'; }
+            },
+            onOpenModal(entry) {
+                document.getElementById('modal-title').textContent = entry ? 'Edit Entry' : 'New Entry';
+                document.getElementById('m-site').value = entry?.site || '';
+                document.getElementById('m-url').value = entry?.url || '';
+                document.getElementById('m-user').value = entry?.username || '';
+                document.getElementById('m-pw').value = entry?.password || '';
+                document.getElementById('m-notes').value = entry?.notes || '';
+                document.getElementById('modal-overlay').classList.add('open');
+                setTimeout(() => document.getElementById('m-site').focus(), 50);
+            },
+            onCloseModal() { document.getElementById('modal-overlay').classList.remove('open'); },
+        });
+
+        function doSave() {
+            K.saveEntry({ site: document.getElementById('m-site').value.trim(), url: document.getElementById('m-url').value.trim(), username: document.getElementById('m-user').value.trim(), password: document.getElementById('m-pw').value, notes: document.getElementById('m-notes').value.trim() });
+        }
+        function genPw() {
+            const pw = K.generatePassword(), el = document.getElementById('m-pw');
+            el.value = pw; el.type = 'text'; setTimeout(() => el.type = 'password', 2000);
+        }
+        function copyValEl(id, btn) {
+            K.copyField(document.getElementById(id).textContent);
+            const orig = btn.textContent; btn.textContent = 'Copied'; btn.classList.add('copied');
+            setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1500);
+        }
+        function deleteActive() {
+            const id = K.getActiveId(); if (id) K.deleteEntry(id);
+        }
+    </script>
+</body>
+
+</html>
